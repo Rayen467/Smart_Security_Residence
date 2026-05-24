@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "453370936021",
+    "project_id": "ironcore-gear",
+    "storage_bucket": "ironcore-gear.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453370936021:android:d06a7004f253f656ae405c",
+        "android_client_info": {
+          "package_name": "com.example.smart_security_residence"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453370936021-odm5elks0o8guhdf3ae1g5agcu0gkrp1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXgQq_tsHWrRYgaSx-QWKlM8-UMrGWSuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453370936021-odm5elks0o8guhdf3ae1g5agcu0gkrp1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453370936021:android:dfc85639d55967c1ae405c",
+        "android_client_info": {
+          "package_name": "ironcore.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453370936021-odm5elks0o8guhdf3ae1g5agcu0gkrp1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXgQq_tsHWrRYgaSx-QWKlM8-UMrGWSuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453370936021-odm5elks0o8guhdf3ae1g5agcu0gkrp1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
