@@ -87,15 +87,9 @@ class ResidentDashboardPage extends StatelessWidget {
                   CustomButton(
                     label: 'Kirim SOS',
                     variant: ButtonVariant.danger,
-                    icon: const Icon(Icons.sos_rounded),
+                    icon: const Icon(Icons.warning_amber_rounded),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Fitur SOS akan dibuat pada phase berikutnya.',
-                          ),
-                        ),
-                      );
+                      Navigator.pushNamed(context, AppRouter.sos);
                     },
                   ),
                 ],
@@ -114,10 +108,12 @@ class ResidentDashboardPage extends StatelessWidget {
             ),
             _DashboardMenuCard(
               icon: Icons.history_rounded,
-              title: 'Riwayat Laporan',
-              subtitle: 'Lihat status laporan yang pernah kamu kirim.',
-              status: 'Belum aktif',
-              onTap: () {},
+              title: 'Riwayat SOS',
+              subtitle: 'Lihat status SOS darurat yang pernah kamu kirim.',
+              status: 'Aktif',
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.sosHistory);
+              },
             ),
             _DashboardMenuCard(
               icon: Icons.notifications_active_outlined,

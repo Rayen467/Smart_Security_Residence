@@ -2,7 +2,7 @@ class ApiConstants {
   // Ganti baseUrl ini nanti sesuai alamat backend Golang lu.
   // Kalau backend jalan di laptop dan dites dari HP Android fisik,
   // pakai IP laptop, contoh: http://192.168.1.10:8080/api/v1
-  static const String baseUrl = 'http://192.168.1.10:8080/api/v1';
+  static const String baseUrl = 'http://localhost:8080/api/v1';
 
   // Auth endpoints
   static const String verifyToken = '/auth/verify-token';
