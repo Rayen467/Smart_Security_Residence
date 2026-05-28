@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/verify_email_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_router_page.dart';
 import '../../features/emergency/presentation/pages/sos_page.dart';
 import '../../features/emergency/presentation/pages/sos_history_page.dart';
+import '../../features/emergency/presentation/pages/security_sos_page.dart';
 import 'auth_guard.dart';
 
 class AppRouter {
@@ -16,6 +17,7 @@ class AppRouter {
   static const String verifyEmail = '/verify-email';
   static const String dashboard = '/dashboard';
   static const String sos = '/sos';
+  static const String securitySos = '/security-sos';
   static const String sosHistory = '/sos-history';
 
   static Map<String, WidgetBuilder> get routes {
@@ -27,6 +29,7 @@ class AppRouter {
       dashboard: (_) => const AuthGuard(child: DashboardRouterPage()),
       sos: (_) => const AuthGuard(child: SosPage()),
       sosHistory: (_) => const AuthGuard(child: SosHistoryPage()),
+      securitySos: (_) => const AuthGuard(child: SecuritySosPage()),
     };
   }
 }

@@ -17,6 +17,70 @@ enum AuthStatus {
 }
 
 class AuthProvider extends ChangeNotifier {
+  Future<bool> loginWithIdentifier({
+    required String identifier,
+    required String password,
+  }) async {
+    _setLoading();
+
+    try {
+      String email = identifier.trim();
+
+      if (!email.contains('@')) {
+        final response = await DioClient.instance.post(
+          ApiConstants.resolveLogin,
+          data: {'identifier': identifier.trim()},
+        );
+
+        final responseData = response.data as Map<String, dynamic>;
+        final data = responseData['data'] as Map<String, dynamic>? ?? {};
+
+        email = data['email']?.toString() ?? '';
+
+        if (email.isEmpty) {
+          _setError('Akun tidak ditemukan. Periksa nama atau email kamu.');
+          return false;
+        }
+      }
+
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _firebaseUser = credential.user;
+
+      if (!(_firebaseUser?.emailVerified ?? false)) {
+        _tempEmail = email;
+        _tempPassword = password;
+
+        _status = AuthStatus.emailNotVerified;
+        _errorMessage = null;
+        notifyListeners();
+
+        return false;
+      }
+
+      return await _verifyTokenToBackend();
+    } on FirebaseAuthException catch (e) {
+      _setError(_mapFirebaseError(e.code));
+      return false;
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map<String, dynamic>) {
+        _setError(data['message']?.toString() ?? 'Akun tidak ditemukan.');
+      } else {
+        _setError('Gagal mencari akun. Pastikan backend berjalan.');
+      }
+
+      return false;
+    } catch (e) {
+      _setError('Login gagal: $e');
+      return false;
+    }
+  }
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   AuthStatus _status = AuthStatus.initial;
@@ -324,19 +388,26 @@ class AuthProvider extends ChangeNotifier {
 
   String _mapFirebaseError(String code) {
     return switch (code) {
-      'email-already-in-use' => 'Email sudah terdaftar. Gunakan email lain.',
-      'invalid-email' => 'Format email tidak valid.',
-      'operation-not-allowed' => 'Metode login belum diaktifkan di Firebase.',
-      'weak-password' => 'Password terlalu lemah. Minimal 8 karakter.',
-      'user-disabled' => 'Akun ini telah dinonaktifkan.',
+      'email-already-in-use' =>
+        'Email sudah terdaftar. Gunakan email lain atau masuk dengan akun tersebut.',
+      'invalid-email' =>
+        'Format email tidak valid. Periksa kembali email yang dimasukkan.',
+      'operation-not-allowed' =>
+        'Metode login Email/Password belum diaktifkan di Firebase.',
+      'weak-password' => 'Password terlalu lemah. Gunakan minimal 8 karakter.',
+      'user-disabled' => 'Akun ini telah dinonaktifkan. Hubungi admin.',
       'user-not-found' =>
-        'Akun tidak ditemukan. Silakan daftar terlebih dahulu.',
-      'wrong-password' => 'Password salah. Coba lagi.',
-      'invalid-credential' => 'Email atau password salah.',
-      'network-request-failed' => 'Tidak ada koneksi internet.',
-      'too-many-requests' => 'Terlalu banyak percobaan. Coba lagi nanti.',
+        'Akun tidak ditemukan. Periksa email/nama atau daftar terlebih dahulu.',
+      'wrong-password' => 'Password salah. Periksa kembali password kamu.',
+      'invalid-credential' =>
+        'Email atau password salah. Periksa kembali data login kamu.',
+      'invalid-login-credentials' =>
+        'Email atau password salah. Periksa kembali data login kamu.',
+      'network-request-failed' =>
+        'Tidak ada koneksi internet atau koneksi ke Firebase gagal.',
+      'too-many-requests' => 'Terlalu banyak percobaan login. Coba lagi nanti.',
       'requires-recent-login' => 'Silakan login ulang untuk melanjutkan.',
-      _ => 'Terjadi kesalahan autentikasi. Kode: $code',
+      _ => 'Login gagal. Kode error: $code',
     };
   }
 }

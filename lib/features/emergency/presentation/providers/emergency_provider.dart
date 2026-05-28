@@ -6,6 +6,95 @@ import '../../../../core/services/dio_client.dart';
 import '../../data/models/emergency_alert_model.dart';
 
 class EmergencyProvider extends ChangeNotifier {
+  Future<void> fetchSosAlerts({String? status}) async {
+    _setLoading(true);
+
+    try {
+      final response = await DioClient.instance.get(
+        ApiConstants.emergencyAlerts,
+        queryParameters: {
+          if (status != null && status.isNotEmpty) 'status': status,
+        },
+      );
+
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>? ?? {};
+      final list = data['emergency_alerts'] as List<dynamic>? ?? [];
+
+      _alerts = list
+          .map(
+            (item) =>
+                EmergencyAlertModel.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+
+      _errorMessage = null;
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map<String, dynamic>) {
+        _errorMessage =
+            data['message']?.toString() ?? 'Gagal mengambil data SOS';
+      } else {
+        _errorMessage = 'Gagal mengambil data SOS';
+      }
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
+    }
+
+    _setLoading(false);
+  }
+
+  Future<bool> updateSosStatus({
+    required int alertId,
+    required String status,
+  }) async {
+    _setLoading(true);
+
+    try {
+      final response = await DioClient.instance.put(
+        '${ApiConstants.emergencyAlerts}/$alertId/status',
+        data: {'status': status},
+      );
+
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>? ?? {};
+      final alertJson = data['emergency_alert'] as Map<String, dynamic>? ?? {};
+
+      final updatedAlert = EmergencyAlertModel.fromJson(alertJson);
+
+      _alerts = _alerts.map((alert) {
+        if (alert.id == updatedAlert.id) {
+          return updatedAlert;
+        }
+
+        return alert;
+      }).toList();
+
+      _latestAlert = updatedAlert;
+      _errorMessage = null;
+
+      _setLoading(false);
+      return true;
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map<String, dynamic>) {
+        _errorMessage =
+            data['message']?.toString() ?? 'Gagal memperbarui status SOS';
+      } else {
+        _errorMessage = 'Gagal memperbarui status SOS';
+      }
+
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      _errorMessage = 'Terjadi kesalahan: $e';
+      _setLoading(false);
+      return false;
+    }
+  }
+
   bool _isLoading = false;
   String? _errorMessage;
   EmergencyAlertModel? _latestAlert;

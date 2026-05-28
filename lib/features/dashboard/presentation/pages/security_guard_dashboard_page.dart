@@ -69,6 +69,7 @@ class SecurityGuardDashboardPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+
             Row(
               children: const [
                 Expanded(
@@ -98,12 +99,24 @@ class SecurityGuardDashboardPage extends StatelessWidget {
               title: 'SOS Masuk',
               subtitle: 'Lihat daftar permintaan darurat dari warga.',
               badge: StatusBadge.danger('Prioritas'),
+              onTap: () {
+                Navigator.pushNamed(context, AppRouter.securitySos);
+              },
             ),
             _ActionTile(
               icon: Icons.report_problem_outlined,
               title: 'Laporan Keamanan',
               subtitle: 'Tangani laporan warga yang masuk.',
               badge: StatusBadge.warning('Menunggu'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Fitur Laporan Keamanan akan dibuat pada phase berikutnya.',
+                    ),
+                  ),
+                );
+              },
             ),
             _ActionTile(
               icon: Icons.videocam_rounded,
@@ -111,12 +124,30 @@ class SecurityGuardDashboardPage extends StatelessWidget {
               subtitle:
                   'Verifikasi alert dari Smart CCTV Motion Detection Module.',
               badge: StatusBadge.danger('Motion'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Fitur CCTV Motion Alert akan dibuat pada phase berikutnya.',
+                    ),
+                  ),
+                );
+              },
             ),
             _ActionTile(
               icon: Icons.task_alt_rounded,
               title: 'Tugas Aktif',
               subtitle: 'Pantau tugas penanganan yang sedang berjalan.',
               badge: StatusBadge.info('Aktif'),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Fitur Tugas Aktif akan dibuat pada phase berikutnya.',
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -228,12 +259,14 @@ class _ActionTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final Widget badge;
+  final VoidCallback? onTap;
 
   const _ActionTile({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.badge,
+    this.onTap,
   });
 
   @override
@@ -254,7 +287,20 @@ class _ActionTile extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4),
           child: Text(subtitle),
         ),
-        trailing: badge,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            badge,
+            if (onTap != null) ...[
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ],
+        ),
+        onTap: onTap,
       ),
     );
   }

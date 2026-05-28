@@ -20,14 +20,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _identifierController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _showPassword = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -35,10 +35,12 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
+    FocusScope.of(context).unfocus();
+
     final auth = context.read<AuthProvider>();
 
-    final success = await auth.loginWithEmail(
-      email: _emailController.text.trim(),
+    final success = await auth.loginWithIdentifier(
+      identifier: _identifierController.text.trim(),
       password: _passwordController.text,
     );
 
@@ -121,6 +123,32 @@ class _LoginPageState extends State<LoginPage> {
     emailResetController.dispose();
   }
 
+  void _showBiometricInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.fingerprint_rounded,
+            size: 54,
+            color: AppColors.accent,
+          ),
+          title: const Text('Biometric Login'),
+          content: const Text(
+            'Fingerprint/Face Unlock akan aktif setelah login pertama berhasil dan aplikasi dijalankan di HP Android. Di Flutter Web/Edge fitur ini tidak dites dulu.',
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Paham'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -137,28 +165,70 @@ class _LoginPageState extends State<LoginPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
                   const AuthHeader(
-                    icon: Icons.lock_open_rounded,
+                    icon: Icons.shield_rounded,
                     title: 'Selamat Datang',
                     subtitle:
-                        'Masuk untuk mengakses sistem keamanan residence.',
+                        'Masuk menggunakan email atau nama akun untuk mengakses sistem keamanan residence.',
                   ),
-                  const SizedBox(height: 34),
+                  const SizedBox(height: 28),
+
+                  if (auth.errorMessage != null) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.danger.withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppColors.danger,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              auth.errorMessage!,
+                              style: const TextStyle(
+                                color: AppColors.danger,
+                                fontWeight: FontWeight.w700,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
 
                   CustomTextField(
-                    label: 'Email',
-                    hint: 'contoh@email.com',
-                    controller: _emailController,
+                    label: 'Email / Nama',
+                    hint: 'contoh@email.com atau rayen',
+                    controller: _identifierController,
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIcon: const Icon(Icons.person_outline_rounded),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Email wajib diisi';
+                      final text = value?.trim() ?? '';
+
+                      if (text.isEmpty) {
+                        return 'Email atau nama wajib diisi';
                       }
 
-                      if (!EmailValidator.validate(value.trim())) {
+                      if (text.contains('@') &&
+                          !EmailValidator.validate(text)) {
                         return 'Format email tidak valid';
+                      }
+
+                      if (!text.contains('@') && text.length < 3) {
+                        return 'Nama minimal 3 karakter';
                       }
 
                       return null;
@@ -171,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                     hint: 'Masukkan password',
                     controller: _passwordController,
                     obscureText: !_showPassword,
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIcon: const Icon(Icons.lock_outline_rounded),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _showPassword
@@ -187,6 +257,10 @@ class _LoginPageState extends State<LoginPage> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Password wajib diisi';
+                      }
+
+                      if (value.length < 6) {
+                        return 'Password terlalu pendek';
                       }
 
                       return null;
@@ -210,7 +284,52 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: _login,
                   ),
 
+                  const SizedBox(height: 14),
+
+                  OutlinedButton.icon(
+                    onPressed: _showBiometricInfo,
+                    icon: const Icon(Icons.fingerprint_rounded),
+                    label: const Text('Masuk dengan Fingerprint / Face ID'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: AppColors.accent.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info_outline_rounded,
+                          color: AppColors.accent,
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Untuk demo: warga bisa daftar sendiri. Akun sekuriti/admin dibuat atau diatur lewat database oleh admin.',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

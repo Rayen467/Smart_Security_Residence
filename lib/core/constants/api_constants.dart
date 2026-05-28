@@ -5,6 +5,7 @@ class ApiConstants {
   static const String baseUrl = 'http://localhost:8080/api/v1';
 
   // Auth endpoints
+  static const String resolveLogin = '/auth/resolve-login';
   static const String verifyToken = '/auth/verify-token';
   static const String me = '/auth/me';
   static const String logout = '/auth/logout';

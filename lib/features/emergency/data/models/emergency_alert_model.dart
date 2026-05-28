@@ -1,3 +1,38 @@
+class EmergencyUserMiniModel {
+  final int id;
+  final String name;
+  final String email;
+  final String phone;
+  final String block;
+  final String houseNumber;
+
+  const EmergencyUserMiniModel({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.block,
+    required this.houseNumber,
+  });
+
+  factory EmergencyUserMiniModel.fromJson(Map<String, dynamic> json) {
+    return EmergencyUserMiniModel(
+      id: _toInt(json['id']),
+      name: json['name']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      block: json['block']?.toString() ?? '',
+      houseNumber: json['house_number']?.toString() ?? '',
+    );
+  }
+
+  static int _toInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    return int.tryParse(value.toString()) ?? 0;
+  }
+}
+
 class EmergencyAlertModel {
   final int id;
   final int userId;
@@ -15,6 +50,9 @@ class EmergencyAlertModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  final EmergencyUserMiniModel? user;
+  final EmergencyUserMiniModel? assignedSecurity;
+
   const EmergencyAlertModel({
     required this.id,
     required this.userId,
@@ -31,6 +69,8 @@ class EmergencyAlertModel {
     this.cancelledAt,
     this.createdAt,
     this.updatedAt,
+    this.user,
+    this.assignedSecurity,
   });
 
   factory EmergencyAlertModel.fromJson(Map<String, dynamic> json) {
@@ -50,6 +90,16 @@ class EmergencyAlertModel {
       cancelledAt: _toDateTimeNullable(json['cancelled_at']),
       createdAt: _toDateTimeNullable(json['created_at']),
       updatedAt: _toDateTimeNullable(json['updated_at']),
+      user: json['user'] is Map<String, dynamic>
+          ? EmergencyUserMiniModel.fromJson(
+              json['user'] as Map<String, dynamic>,
+            )
+          : null,
+      assignedSecurity: json['assigned_security'] is Map<String, dynamic>
+          ? EmergencyUserMiniModel.fromJson(
+              json['assigned_security'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 

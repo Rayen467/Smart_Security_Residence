@@ -50,11 +50,7 @@ class _SplashPageState extends State<SplashPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.security_rounded,
-                size: 78,
-                color: Colors.white,
-              ),
+              Icon(Icons.security_rounded, size: 78, color: Colors.white),
               SizedBox(height: 22),
               Text(
                 AppStrings.appName,
@@ -76,9 +72,7 @@ class _SplashPageState extends State<SplashPage> {
                 ),
               ),
               SizedBox(height: 34),
-              CircularProgressIndicator(
-                color: Colors.white,
-              ),
+              CircularProgressIndicator(color: Colors.white),
             ],
           ),
         ),
